@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
+import { useT } from "../i18n";
 import "./KnowledgeBaseSummary.css";
 
 export default function KnowledgeBaseSummary() {
+  const { t } = useT();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,7 +54,7 @@ export default function KnowledgeBaseSummary() {
             <path d="M20 7c0 2.21-3.58 4-8 4S4 9.21 4 7" />
             <ellipse cx="12" cy="7" rx="8" ry="4" />
           </svg>
-          <span className="kb-summary-title">Knowledge Base</span>
+          <span className="kb-summary-title">{t("kb.title")}</span>
         </div>
         <button
           className="kb-refresh-btn"
@@ -80,7 +82,7 @@ export default function KnowledgeBaseSummary() {
         <div className="kb-error">
           <span>{error}</span>
           <button className="kb-retry-btn" onClick={fetchStats}>
-            Retry
+            {t("kb.retry")}
           </button>
         </div>
       )}
@@ -91,28 +93,28 @@ export default function KnowledgeBaseSummary() {
             <span className="kb-stat-value">
               {loading ? "—" : stats?.documents?.length ?? "—"}
             </span>
-            <span className="kb-stat-label">Documents</span>
+            <span className="kb-stat-label">{t("kb.documents")}</span>
           </div>
           <div className="kb-stat-divider" />
           <div className="kb-stat">
             <span className="kb-stat-value">
               {loading ? "—" : stats?.documents?.reduce((s, d) => s + (d.pages ?? 0), 0) ?? "—"}
             </span>
-            <span className="kb-stat-label">Pages</span>
+            <span className="kb-stat-label">{t("kb.pages")}</span>
           </div>
           <div className="kb-stat-divider" />
           <div className="kb-stat">
             <span className="kb-stat-value">
               {loading ? "—" : formatSize(stats?.totalBytes)}
             </span>
-            <span className="kb-stat-label">Data Size</span>
+            <span className="kb-stat-label">{t("kb.dataSize")}</span>
           </div>
           <div className="kb-stat-divider" />
           <div className="kb-stat">
             <span className="kb-stat-value">
-              {loading ? "—" : `${stats?.total ?? 0} entries`}
+              {loading ? "—" : `${stats?.total ?? 0} ${t("kb.entries")}`}
             </span>
-            <span className="kb-stat-label">Indexed</span>
+            <span className="kb-stat-label">{t("kb.indexed")}</span>
           </div>
         </div>
       )}

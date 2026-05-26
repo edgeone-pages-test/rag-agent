@@ -2,12 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Markdown from "react-markdown";
 import { sendMessageStream, fetchConversationHistory, stopAgent } from "../api";
 import CitationCard from "./CitationCard";
+import { useT } from "../i18n";
 import "./RagChat.css";
-
-const PRESET_QUESTIONS = [
-  "What is context.store and how do I use it?",
-  "How does RAG retrieval work and what are the best strategies?",
-];
 
 const CONVERSATION_ID_KEY = "rag_conversation_id";
 
@@ -23,6 +19,7 @@ function getOrCreateConversationId() {
 let _historyFetchInFlight = false;
 
 export default function RagChat() {
+  const { t } = useT();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("idle"); // idle | streaming
@@ -167,7 +164,7 @@ export default function RagChat() {
                   if (lastPart && lastPart.type === "text") {
                     parts[parts.length - 1] = {
                       ...lastPart,
-                      text: lastPart.text + "\n\n⏹ *Generation stopped*",
+                      text: lastPart.text + "\n\n" + t("chat.stopped"),
                     };
                   }
                   return { ...m, parts };
@@ -187,7 +184,7 @@ export default function RagChat() {
                 if (m.parts.length === 0 || getTextContent(m.parts) === "") {
                   return {
                     ...m,
-                    parts: [{ type: "text", text: "Request failed. Please check if the backend service is running." }],
+                    parts: [{ type: "text", text: t("chat.error") }],
                   };
                 }
                 return m;
@@ -220,10 +217,10 @@ export default function RagChat() {
         if (lastPart && lastPart.type === "text") {
           parts[parts.length - 1] = {
             ...lastPart,
-            text: (lastPart.text || "") + "\n\n⏹ *Generation stopped*",
+            text: (lastPart.text || "") + "\n\n" + t("chat.stopped"),
           };
         } else if (parts.length === 0) {
-          parts.push({ type: "text", text: "⏹ *Generation stopped*" });
+          parts.push({ type: "text", text: t("chat.stopped") });
         }
         return { ...m, parts };
       })
@@ -279,11 +276,11 @@ export default function RagChat() {
       <div className="chat-header">
         <div className="chat-header-left">
           <div className="chat-indicator" />
-          <span className="chat-title">Knowledge Query</span>
+          <span className="chat-title">{t("chat.title")}</span>
         </div>
         {messages.length > 0 && (
           <button className="chat-clear-btn" onClick={handleClear}>
-            New Session
+            {t("chat.newSession")}
           </button>
         )}
       </div>
@@ -297,7 +294,7 @@ export default function RagChat() {
               <span />
             </div>
             <p className="chat-empty-desc" style={{ marginTop: 16 }}>
-              Loading conversation history...
+              {t("chat.loadingHistory")}
             </p>
           </div>
         )}
@@ -309,12 +306,12 @@ export default function RagChat() {
                 <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
               </svg>
             </div>
-            <p className="chat-empty-title">Ask about your knowledge base</p>
+            <p className="chat-empty-title">{t("chat.emptyTitle")}</p>
             <p className="chat-empty-desc">
-              Query documents with full citation traceability
+              {t("chat.emptyDesc")}
             </p>
             <div className="preset-chips">
-              {PRESET_QUESTIONS.map((q) => (
+              {[t("preset.1"), t("preset.2")].map((q) => (
                 <button
                   key={q}
                   className="preset-chip"
@@ -330,7 +327,7 @@ export default function RagChat() {
         {messages.map((msg) => (
           <div key={msg.id} className={`chat-message chat-message--${msg.role}`}>
             <div className="message-role-tag">
-              {msg.role === "user" ? "You" : "Agent"}
+              {msg.role === "user" ? t("chat.you") : t("chat.agent")}
             </div>
             <div className="message-content">
               {msg.role === "assistant" ? (
@@ -361,9 +358,9 @@ export default function RagChat() {
               <span />
               <span />
             </div>
-            <span className="streaming-text">Retrieving & generating...</span>
+            <span className="streaming-text">{t("chat.streaming")}</span>
             <button className="stop-btn" onClick={handleStop}>
-              Stop
+              {t("chat.stop")}
             </button>
           </div>
         )}
@@ -384,7 +381,7 @@ export default function RagChat() {
 
       {messages.length > 0 && (
         <div className="preset-chips preset-chips--inline">
-          {PRESET_QUESTIONS.map((q) => (
+          {[t("preset.1"), t("preset.2")].map((q) => (
             <button
               key={q}
               className="preset-chip preset-chip--small"
@@ -401,7 +398,7 @@ export default function RagChat() {
         <input
           type="text"
           className="chat-input"
-          placeholder="Ask a question about your documents..."
+          placeholder={t("chat.placeholder")}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}

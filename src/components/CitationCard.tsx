@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useT } from "../i18n";
 import "./CitationCard.css";
 
 export default function CitationCard({
@@ -9,6 +10,7 @@ export default function CitationCard({
   totalChars,
   content,
 }) {
+  const { t, lang } = useT();
   const [expandedPages, setExpandedPages] = useState({});
   const [copiedIdx, setCopiedIdx] = useState(null);
 
@@ -45,6 +47,13 @@ export default function CitationCard({
       ? `${pageCount} pages`
       : "";
 
+  const formatPageLabel = (pageNum) => {
+    if (lang === "zh") {
+      return t("citation.page").replace("{n}", String(pageNum));
+    }
+    return `${t("citation.page")} ${pageNum}`;
+  };
+
   return (
     <div className="citation-card">
       <div className="citation-accent-strip" />
@@ -60,25 +69,25 @@ export default function CitationCard({
               <line x1="16" y1="17" x2="8" y2="17" />
               <polyline points="10,9 9,9 8,9" />
             </svg>
-            <span className="citation-doc-name">{docName || "Unknown Document"}</span>
+            <span className="citation-doc-name">{docName || t("citation.unknownDoc")}</span>
           </div>
-          <div className="citation-badge">VERIFIED SOURCE</div>
+          <div className="citation-badge">{t("citation.badge")}</div>
         </div>
 
         <div className="citation-meta">
           {docId && (
             <span className="citation-meta-item">
-              <span className="citation-meta-label">ID:</span> {docId}
+              <span className="citation-meta-label">{t("citation.id")}</span> {docId}
             </span>
           )}
           {pageRange && (
             <span className="citation-meta-item">
-              <span className="citation-meta-label">Range:</span> {pageRange}
+              <span className="citation-meta-label">{t("citation.range")}</span> {pageRange}
             </span>
           )}
           {totalChars != null && (
             <span className="citation-meta-item">
-              <span className="citation-meta-label">Chars:</span>{" "}
+              <span className="citation-meta-label">{t("citation.chars")}</span>{" "}
               {totalChars.toLocaleString()}
             </span>
           )}
@@ -98,7 +107,7 @@ export default function CitationCard({
                 <div key={idx} className="citation-page-item">
                   <div className="citation-page-header">
                     <span className="citation-page-number">
-                      Page {item.page}
+                      {formatPageLabel(item.page)}
                     </span>
                     <div className="citation-page-actions">
                       <button
@@ -122,7 +131,7 @@ export default function CitationCard({
                           className="citation-expand-btn"
                           onClick={() => togglePage(idx)}
                         >
-                          {isExpanded ? "Collapse" : "Expand"}
+                          {isExpanded ? t("citation.collapse") : t("citation.expand")}
                         </button>
                       )}
                     </div>
