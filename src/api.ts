@@ -57,7 +57,7 @@ export async function fetchConversationHistory(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "pages-agent-conversation-id": conversationId,
+          "makers-conversation-id": conversationId,
         },
         body: JSON.stringify({}),
       });
@@ -222,7 +222,7 @@ function dispatchEvent(
 /**
  * Request the backend to abort the currently running Agent.
  *
- * IMPORTANT: The stop request must NOT carry the pages-agent-conversation-id header,
+ * IMPORTANT: The stop request must NOT carry the makers-conversation-id header,
  * otherwise the runtime will overwrite chat's signal with stop's signal,
  * causing abortActiveRun to fail. The target conversationId is passed only via body.
  */
