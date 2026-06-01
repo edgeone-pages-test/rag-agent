@@ -1,5 +1,5 @@
 5. Environment Variables and Secrets
-EdgeOne Makers provides a secure environment variable system for managing API keys, database
+EdgeOne Pages provides a secure environment variable system for managing API keys, database
 credentials, and other sensitive configuration. Variables are encrypted at rest and injected into the function
 runtime at execution time.
 Environment variables are configured through the EdgeOne dashboard or CLI. They are accessible in Pages

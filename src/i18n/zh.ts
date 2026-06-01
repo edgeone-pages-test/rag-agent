@@ -27,8 +27,8 @@ const zh = {
   "chat.stopped": "⏹ *已停止生成*",
 
   // Preset questions
-  "preset.1": "什么是 context.store，如何使用它？",
-  "preset.2": "RAG 检索是如何工作的，有哪些最佳策略？",
+  "preset.1": "context.store 是什么？OpenAI Agents SDK 怎么接入？",
+  "preset.2": "EdgeOne Pages 的文件路由规则是什么？",
 
   // Citation
   "citation.badge": "已验证来源",

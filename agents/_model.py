@@ -5,7 +5,6 @@ Environment variables: AI_GATEWAY_API_KEY, AI_GATEWAY_BASE_URL, AI_GATEWAY_MODEL
 """
 
 import os
-import ssl
 import httpx
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
@@ -13,9 +12,6 @@ from agents import OpenAIChatCompletionsModel
 from ._logger import create_logger
 
 load_dotenv()
-
-# Disable SSL verification globally (dev workaround for proxy/cert issues)
-ssl._create_default_https_context = ssl._create_unverified_context
 
 logger = create_logger("model")
 
@@ -30,7 +26,6 @@ logger.log(f"Initializing model: {_model_name} @ {_base_url}")
 
 _http_client = httpx.AsyncClient(
     timeout=httpx.Timeout(connect=30.0, read=300.0, write=30.0, pool=30.0),
-    verify=False,
 )
 
 llm_client = AsyncOpenAI(

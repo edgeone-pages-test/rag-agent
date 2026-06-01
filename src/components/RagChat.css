@@ -185,7 +185,7 @@
   background: transparent;
   padding: 4px 0;
   max-width: 100%;
-  line-height: 1.7;
+  line-height: 1.5;
 }
 
 .message-role-tag {
@@ -205,8 +205,12 @@
 .message-content {
   font-size: 0.9rem;
   color: var(--text-primary);
-  white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* 用户消息是纯文本，需要保留换行符；assistant 消息由 react-markdown 渲染成 HTML 元素，不需要 */
+.chat-message--user .message-content {
+  white-space: pre-wrap;
 }
 
 /* ── Streaming Indicator ───────────────── */
@@ -410,117 +414,271 @@
   }
 }
 
-/* ── Markdown rendering ───────────────── */
+/* ── Markdown rendering — Amber Archive ── */
 
+/* ─ Headings ─ */
 .message-content h1,
 .message-content h2,
 .message-content h3,
 .message-content h4 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  line-height: 1.4;
   color: var(--text-primary);
-  margin: 0.8em 0 0.4em;
-  line-height: 1.35;
 }
-.message-content h1 { font-size: 1.2em; }
-.message-content h2 { font-size: 1.1em; }
-.message-content h3 { font-size: 1.02em; }
 
+.message-content h1 {
+  font-size: 1.28em;
+  margin: 1em 0 0.4em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid rgba(212, 168, 83, 0.2);
+  color: var(--accent);
+  text-shadow: 0 0 28px rgba(212, 168, 83, 0.15);
+  letter-spacing: -0.01em;
+}
+
+.message-content h2 {
+  font-size: 1.12em;
+  margin: 0.85em 0 0.3em;
+  padding-left: 0.7em;
+  border-left: 2.5px solid var(--accent);
+}
+
+.message-content h3 {
+  font-size: 1em;
+  margin: 0.7em 0 0.25em;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.message-content h3::before {
+  content: '›';
+  color: var(--accent);
+  margin-right: 0.38em;
+  font-style: normal;
+  font-family: var(--font-mono);
+}
+
+.message-content h4 {
+  font-size: 0.8em;
+  margin: 0.6em 0 0.2em;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+/* ─ Paragraphs ─ */
 .message-content p {
-  margin: 0.4em 0;
-  line-height: 1.65;
+  margin: 0.5em 0;
+  line-height: 1.75;
 }
 
+/* ─ Strong & Em ─ */
 .message-content strong {
-  color: var(--text-primary);
+  color: var(--accent);
   font-weight: 600;
 }
 
 .message-content em {
-  color: var(--text-secondary);
+  font-family: var(--font-heading);
   font-style: italic;
+  color: var(--text-secondary);
 }
 
-.message-content ul,
+/* ─ Unordered list — diamond bullets ─ */
+.message-content ul {
+  margin: 0.4em 0;
+  padding-left: 0.6em;
+  list-style: none;
+}
+
+.message-content ul li {
+  position: relative;
+  padding-left: 1.8em;
+  margin: 0.35em 0;
+  line-height: 1.7;
+}
+
+.message-content ul li::before {
+  content: '◆';
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  font-size: 0.45em;
+  color: var(--accent);
+  line-height: 2.5;
+}
+
+/* ─ Ordered list — mono amber counters ─ */
 .message-content ol {
   margin: 0.4em 0;
-  padding-left: 1.5em;
+  padding-left: 0.6em;
+  list-style: none;
+  counter-reset: md-ol;
 }
 
-.message-content li {
-  margin: 0.25em 0;
-  line-height: 1.6;
+.message-content ol li {
+  position: relative;
+  padding-left: 2.2em;
+  margin: 0.35em 0;
+  line-height: 1.7;
+  counter-increment: md-ol;
 }
 
-.message-content li::marker {
+.message-content ol li::before {
+  content: counter(md-ol);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.4em;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.76em;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0.8;
+  line-height: 1.8;
+}
+
+/* Nested lists */
+.message-content li > ul,
+.message-content li > ol {
+  margin: 0.1em 0 0.1em 0.3em;
+}
+
+.message-content li > ul > li::before {
+  content: '–';
+  font-size: 0.8em;
+  color: var(--text-muted);
+  line-height: 1.9;
+}
+
+/* ─ Inline code ─ */
+.message-content code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: rgba(212, 168, 83, 0.07);
+  border: 1px solid rgba(212, 168, 83, 0.2);
+  border-radius: 4px;
+  padding: 0.12em 0.45em;
   color: var(--accent);
 }
 
-.message-content code {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.88em;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 0.15em 0.4em;
-}
-
+/* ─ Code blocks — terminal aesthetic ─ */
 .message-content pre {
+  position: relative;
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.8em 1em;
-  overflow-x: auto;
+  border-radius: var(--radius-sm);
   margin: 0.6em 0;
+  overflow: hidden;
+}
+
+.message-content pre::before {
+  content: '● ● ●';
+  display: block;
+  padding: 0.5em 0.85em;
+  font-size: 0.62em;
+  letter-spacing: 0.35em;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
 }
 
 .message-content pre code {
+  display: block;
   background: none;
   border: none;
-  padding: 0;
-  font-size: 0.85em;
-  line-height: 1.5;
-}
-
-.message-content blockquote {
-  border-left: 3px solid var(--accent);
-  margin: 0.6em 0;
-  padding: 0.4em 0.8em;
+  padding: 0.9em 1em;
+  font-size: 0.83em;
+  line-height: 1.7;
   color: var(--text-secondary);
-  background: var(--accent-subtle, rgba(212, 168, 83, 0.04));
-  border-radius: 0 4px 4px 0;
+  overflow-x: auto;
 }
 
+/* ─ Blockquote ─ */
+.message-content blockquote {
+  position: relative;
+  margin: 0.6em 0;
+  padding: 0.65em 1em 0.65em 1.15em;
+  border-left: none;
+  background: linear-gradient(90deg, rgba(212, 168, 83, 0.06) 0%, transparent 80%);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+
+.message-content blockquote::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2.5px;
+  background: linear-gradient(180deg, var(--accent) 0%, rgba(212, 168, 83, 0.25) 100%);
+  border-radius: 2px;
+}
+
+.message-content blockquote p {
+  font-family: var(--font-heading);
+  font-style: italic;
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.96em;
+  line-height: 1.75;
+}
+
+/* ─ Links ─ */
 .message-content a {
   color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 168, 83, 0.3);
+  transition: border-color var(--transition), color var(--transition);
 }
 
 .message-content a:hover {
   color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
 }
 
+/* ─ HR ─ */
 .message-content hr {
   border: none;
-  border-top: 1px solid var(--border);
-  margin: 1em 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-dim), var(--border-accent), var(--accent-dim), transparent);
+  margin: 0.9em 0;
 }
 
+/* ─ Table ─ */
 .message-content table {
   border-collapse: collapse;
   width: 100%;
-  margin: 0.6em 0;
-  font-size: 0.9em;
+  margin: 0.65em 0;
+  font-size: 0.87em;
 }
 
 .message-content th,
 .message-content td {
   border: 1px solid var(--border);
-  padding: 0.4em 0.7em;
+  padding: 0.42em 0.75em;
   text-align: left;
 }
 
 .message-content th {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+  background: rgba(212, 168, 83, 0.07);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-color: rgba(212, 168, 83, 0.18);
+}
+
+.message-content tr:hover td {
+  background: rgba(255, 255, 255, 0.018);
 }

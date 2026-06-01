@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-05-25T13:03:35.894423+00:00",
+  "generated_at": "2026-06-01T08:27:44.610963+00:00",
   "documents": [
     {
-      "docId": "Building-RAG-Applications",
+      "docId": "EdgeOne-Makers-Store",
       "meta": {
-        "doc_name": "Building-RAG-Applications",
+        "doc_name": "EdgeOne-Makers-Store",
         "doc_description": "",
         "type": "pdf",
-        "page_count": 8,
+        "page_count": 9,
         "status": "completed",
-        "created": "2026-05-25T13:03:35.883842+00:00"
+        "created": "2026-06-01T08:27:44.601471+00:00"
       },
       "hasStructure": false,
-      "pages": 8,
-      "metaBytes": 180,
+      "pages": 9,
+      "metaBytes": 175,
       "structureBytes": 0,
-      "pageBytes": 7639,
-      "totalBytes": 7819
+      "pageBytes": 14975,
+      "totalBytes": 15150
     },
     {
       "docId": "EdgeOne-Pages-Platform-Guide",
@@ -26,7 +26,7 @@
         "type": "pdf",
         "page_count": 7,
         "status": "completed",
-        "created": "2026-05-25T13:03:35.893673+00:00"
+        "created": "2026-06-01T08:27:44.610243+00:00"
       },
       "hasStructure": false,
       "pages": 7,

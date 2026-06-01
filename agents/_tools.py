@@ -25,14 +25,24 @@ logger = create_logger("tools")
 @function_tool
 def search_document(
     query: Annotated[str, "User's search query"],
-    doc_id: Annotated[str, "Document ID. Pass empty string to auto-select first available document."] = "",
+    doc_id: Annotated[str, "Document ID. Pass empty string to list all available documents and let the model pick the most relevant one(s)."] = "",
 ) -> str:
     """Search knowledge base documents. Returns document metadata and structure index for locating relevant pages.
-    Always call this first when answering knowledge-base questions."""
+    Always call this first when answering knowledge-base questions.
+
+    Calling pattern:
+      1. First call with doc_id="" to discover what documents exist in the knowledge base.
+      2. Pick the document(s) whose names / descriptions best match the user's question.
+      3. Call search_document again with the chosen doc_id to retrieve metadata + structure.
+      4. Then call fetch_pages with the appropriate page range.
+    """
 
     logger.log(f"searchDocument called: query=\"{query}\", doc_id=\"{doc_id}\"")
 
-    # Auto-select first available document if no doc_id specified
+    # No doc_id → list all available documents and let the LLM choose the relevant one(s).
+    # IMPORTANT: do NOT auto-pick the first document — the knowledge base may contain
+    # multiple unrelated documents and silently picking docs[0] hides the rest from
+    # the model, causing wrong "not found" answers.
     if not doc_id:
         docs = list_documents()
         logger.log(f"listDocuments returned {len(docs)} docs")
@@ -40,7 +50,28 @@ def search_document(
             return json.dumps({
                 "error": "Knowledge base is empty. Please run prepare_rag_data.py first.",
             }, ensure_ascii=False)
-        doc_id = docs[0]["docId"]
+
+        return json.dumps({
+            "query": query,
+            "documentCount": len(docs),
+            "documents": [
+                {
+                    "docId": d.get("docId", ""),
+                    "meta": d.get("meta", {}),
+                    "pages": d.get("pages", 0),
+                    "hasStructure": d.get("hasStructure", False),
+                }
+                for d in docs
+            ],
+            "instruction": (
+                "Multiple documents are available in the knowledge base. "
+                "Review the document list above (especially `meta.doc_name` and `meta.doc_description`), "
+                "select the document(s) most relevant to the user's question, "
+                "then call search_document again with the chosen `doc_id` to retrieve its structure, "
+                "or call fetch_pages directly if the document is small. "
+                "If multiple documents look relevant, query them one by one."
+            ),
+        }, ensure_ascii=False)
 
     meta = get_document_meta(doc_id)
     if not meta:

@@ -1,3 +1,4 @@
 openai-agents>=0.17.3
 openai>=2.37.0
 python-dotenv>=1.2.2
+truststore>=0.10.4

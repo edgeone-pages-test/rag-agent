@@ -11,6 +11,8 @@ build/
 .edgeone/
 .edgeone.zip
 
+.codegraph
+
 # Environment variables
 .env
 .env.local

@@ -39,8 +39,19 @@ async def stream_chat(
     """
     cancel_signal = getattr(context.request, "signal", None) if hasattr(context, "request") else None
 
+    # Wire up the OpenAI Agents SDK Session backed by EdgeOne `context.store`,
+    # so each run reads previous messages and appends new ones automatically.
+    session = None
+    conversation_id = getattr(context, "conversation_id", "")
+    store = getattr(context, "store", None)
+    if store and conversation_id and hasattr(store, "openai_session"):
+        try:
+            session = store.openai_session(conversation_id)
+        except Exception as e:
+            logger.error(f"Failed to create openai_session: {e}")
+
     try:
-        result = Runner.run_streamed(agent, input=message, max_turns=max_turns)
+        result = Runner.run_streamed(agent, input=message, max_turns=max_turns, session=session)
 
         yield _sse({"type": "start", "messageId": f"msg_{id(result)}"})
 

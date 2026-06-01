@@ -1,5 +1,5 @@
 6. Deployment and CI/CD
-Deploying to EdgeOne Makers is straightforward. Connect your Git repository through the dashboard, and
+Deploying to EdgeOne Pages is straightforward. Connect your Git repository through the dashboard, and
 every push to your main branch triggers an automatic deployment. Preview deployments are created for pull
 requests, allowing team members to review changes before merging.
 The build process supports popular frameworks including React, Vue, Next.js, and Astro. Custom build
