@@ -2,9 +2,9 @@
  * Frontend API Client
  *
  * Route mapping:
- *   agents/chat/index.py       → POST /chat        RAG streaming chat
- *   agents/stop/index.py       → POST /stop        Abort active run
- *   agents/history/index.py    → POST /history     Get conversation history
+ *   agents/chat/index.py                 → POST /chat        RAG streaming chat
+ *   agents/stop/index.py                 → POST /stop        Abort active run
+ *   cloud-functions/history/index.py     → POST /history     Get conversation history
  */
 
 export const API = {
@@ -47,19 +47,22 @@ interface SSEEvent {
 
 /**
  * Get conversation history (for restoring chat after page refresh).
+ *
+ * Note: cloud-functions/history reads `conversation_id` from the request body
+ * (BaseHTTPRequestHandler doesn't auto-resolve the makers-conversation-id
+ * header into the handler's context like the agents runtime does).
  */
 export async function fetchConversationHistory(
   conversationId: string,
 ): Promise<HistoryMessage[]> {
+  if (!conversationId) return [];
+
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const res = await fetch(API.history, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "makers-conversation-id": conversationId,
-        },
-        body: JSON.stringify({}),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversation_id: conversationId }),
       });
 
       // 409 = active request on same conversation (React StrictMode double-render), retry shortly
