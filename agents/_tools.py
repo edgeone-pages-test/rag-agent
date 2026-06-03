@@ -1,11 +1,9 @@
 """RAG tool definitions for OpenAI Agents SDK (Python).
 
-5 tools: searchDocument, fetchPages, getWeather, getUserTimezone, calculate
+2 tools: search_document, fetch_pages
 """
 
 import json
-import time
-import random
 from typing import Annotated
 
 from agents import function_tool
@@ -147,51 +145,5 @@ def fetch_pages(
     }, ensure_ascii=False)
 
 
-@function_tool
-def get_weather(city: Annotated[str, "City name"]) -> str:
-    """Get current weather for a city (mock data)."""
-    conditions = ["sunny", "cloudy", "rainy"]
-    temp = random.randint(5, 35)
-    return json.dumps({
-        "city": city,
-        "temperature": temp,
-        "condition": random.choice(conditions),
-    })
-
-
-@function_tool
-def get_user_timezone() -> str:
-    """Get the server's current timezone and local time."""
-    return json.dumps({
-        "timezone": time.tzname[0] if time.tzname[0] else "UTC",
-        "localTime": time.strftime("%Y-%m-%d %H:%M:%S"),
-    })
-
-
-@function_tool
-def calculate(
-    a: Annotated[float, "First number"],
-    b: Annotated[float, "Second number"],
-    operator: Annotated[str, "Arithmetic operator: +, -, *, /, %"],
-) -> str:
-    """Perform a math calculation with two numbers."""
-    ops = {
-        "+": lambda x, y: x + y,
-        "-": lambda x, y: x - y,
-        "*": lambda x, y: x * y,
-        "/": lambda x, y: x / y if y != 0 else None,
-        "%": lambda x, y: x % y if y != 0 else None,
-    }
-    if operator not in ops:
-        return json.dumps({"error": f"Unknown operator: {operator}"})
-    result = ops[operator](a, b)
-    if result is None:
-        return json.dumps({"error": "Division by zero"})
-    return json.dumps({
-        "expression": f"{a} {operator} {b}",
-        "result": result,
-    })
-
-
 # Tool collection for RAG agent
-RAG_TOOLS = [search_document, fetch_pages, get_weather, get_user_timezone, calculate]
+RAG_TOOLS = [search_document, fetch_pages]
