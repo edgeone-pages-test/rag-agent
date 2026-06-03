@@ -27,8 +27,8 @@ const en = {
   "chat.stopped": "⏹ *Generation stopped*",
 
   // Preset questions
-  "preset.1": "What is context.store and how does it integrate with the OpenAI Agents SDK?",
-  "preset.2": "How does EdgeOne Pages' file-based routing work?",
+  "preset.1": "What is context.store provided by EdgeOne Makers? How does the OpenAI Agents SDK integrate with it?",
+  "preset.2": "What are EdgeOne Makers' file-based routing rules?",
 
   // Citation
   "citation.badge": "VERIFIED SOURCE",
