@@ -1,185 +1,126 @@
 # RAG Agent
 
-An enterprise RAG (Retrieval-Augmented Generation) agent built with **React + Vite** (frontend) and **OpenAI Agents SDK** (Python backend) on **EdgeOne Makers**. The system processes PDF documents into a local knowledge base and provides a chat interface with citation-backed answers.
+**Language:** English | [简体中文](./README_zh-CN.md)
 
-## Deploy
+A retrieval-augmented chat agent on EdgeOne Makers — answers questions over a local PDF knowledge base with citation-backed responses, streamed over SSE. Backend uses the OpenAI Agents SDK (Python).
 
-[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/makers/new?template=rag-agent&from=within&fromAgent=1&agentLang=python)
+**Framework:** OpenAI Agents SDK · **Category:** File Processing <!-- TODO: confirm --> · **Language:** Python
 
-## Features
+[![Deploy to EdgeOne Makers](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/makers/new?template=rag-agent&from=within&fromAgent=1&agentLang=python)
 
-- **RAG with Citations** — Answers grounded in knowledge base documents with source page references
-- **Streaming Responses** — Real-time token streaming via Server-Sent Events (SSE)
-- **Tool Visibility** — UI displays tool calls (search, fetch) as they happen
-- **Session Memory** — Conversation history persisted via EdgeOne `context.store`
-- **Stop Generation** — Users can abort ongoing agent runs mid-stream
+<!-- ![preview](./assets/preview.png)  TODO: confirm -->
 
-## Architecture
+## Overview
 
-```
-┌─────────────────────────────────────────────────────┐
-│  Frontend (React 19 + Vite)                         │
-│  src/App.tsx → RagChat + KnowledgeBaseSummary       │
-│  src/api.ts → SSE stream client                     │
-└────────────────────┬────────────────────────────────┘
-                     │ SSE / JSON
-┌────────────────────▼────────────────────────────────┐
-│  Backend (EdgeOne Makers — Python)                  │
-│  agents/             — stateful Agent Functions     │
-│    chat/index.py        → POST /chat (SSE)          │
-│    stop/index.py        → POST /stop                │
-│    rag-stats/index.py   → GET  /rag-stats           │
-│  cloud-functions/    — stateless cloud functions    │
-│    history/index.py     → POST /history             │
-├─────────────────────────────────────────────────────┤
-│  Core Modules (agents/)                             │
-│  _agent.py  — RAG Agent definition                  │
-│  _tools.py  — search_document, fetch_pages          │
-│  _loader.py — Filesystem-based document reader      │
-│  _model.py  — LLM configuration (OpenAI-compatible) │
-└────────────────────┬────────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────────┐
-│  Knowledge Base (agents/_data/)                     │
-│  Generated from PDFs by prepare_rag_data.py         │
-│  {docId}/meta.json + pages/{n}.txt                  │
-└─────────────────────────────────────────────────────┘
-```
+A working enterprise-style RAG template: drop PDFs into `public/prepare-rag/files/`, run one script, and the agent answers grounded questions with page-level citations. The retrieval layer is a small filesystem-backed loader — no vector DB, no extra service to operate — so the template stays readable. Replace the loader with your own retrieval and the rest of the pipeline keeps working.
 
-> **Why two backend folders?** `agents/` holds long-running, stateful routes (live SSE stream, per-conversation abort signal); `cloud-functions/` holds short, stateless routes that just read `context.agent.store`. Splitting them keeps history requests from contending with an active chat for the per-conversation lock.
+- **Citation-backed answers** — every claim links back to a specific document + page via `search_document` and `fetch_pages` tools.
+- **Streaming + tool visibility** — the UI surfaces `tool-input-available` / `tool-output-available` events so users see which sources the agent reads, in real time.
+- **Filesystem knowledge base** — `prepare_rag_data.py` extracts PDFs into `agents/_data/{docId}/pages/{n}.txt`; `_loader.py` reads them at request time, path-traversal-safe.
+- **Sticky session memory** — `context.store.openai_session(conversation_id)` keeps multi-turn context within a conversation; the stateless `/history` cloud function rehydrates the chat after a refresh.
+- **Honest stop** — `/stop` calls `context.utils.abort_active_run()` to interrupt the LLM call mid-stream.
 
-## Quick Start
+## Environment Variables
 
-### Prerequisites
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AI_GATEWAY_API_KEY` | Yes | Model gateway API key. Use your Makers Models API Key, or any OpenAI-compatible provider key. |
+| `AI_GATEWAY_BASE_URL` | Yes | Gateway base URL. For Makers Models, use `https://ai-gateway.edgeone.link/v1`. |
+| `AI_GATEWAY_MODEL` | No | Model ID. Defaults to `@makers/hy3-preview` (a free built-in model). |
 
-- Node.js ≥ 18
-- Python ≥ 3.10
-- An OpenAI-compatible API key
+This template follows the OpenAI-compatible standard — point these at Makers Models or any compatible provider.
 
-### 1. Install Dependencies
+### How to get `AI_GATEWAY_API_KEY`
+
+1. Open the [Makers Console](https://console.cloud.tencent.com/edgeone/makers).
+2. Sign in and enable Makers.
+3. Go to **Makers → Models → API Key** and create a key.
+4. Copy it into `AI_GATEWAY_API_KEY`.
+
+The built-in `@makers/hy3-preview` model is free with a usage cap and is suitable for prototyping. For production, bind your own paid provider (BYOK).
+
+## Local Development
+
+Prerequisites: Node.js ≥ 18, Python ≥ 3.10, and the EdgeOne CLI (`npm i -g edgeone`).
 
 ```bash
-# Frontend
 npm install
-
-# Backend Python dependencies
 pip install -r agents/requirements.txt
-
-# RAG data preparation tool
 pip install -r public/prepare-rag/requirements.txt
-```
+cp .env.example .env       # then fill in AI_GATEWAY_API_KEY / AI_GATEWAY_BASE_URL
 
-### 2. Configure Environment Variables
-
-Create `agents/.env`:
-
-```env
-AI_GATEWAY_API_KEY=your-api-key          # Required
-AI_GATEWAY_BASE_URL=https://your-api-endpoint/v1  # Required
-AI_GATEWAY_MODEL=gpt-4o                  # Optional, defaults to gpt-4o
-```
-
-### 3. Prepare Knowledge Base
-
-Place PDF files in `public/prepare-rag/files/`, then run:
-
-```bash
+# Drop PDFs into public/prepare-rag/files/, then build the knowledge base
 npm run prepare-rag
-```
 
-This extracts text from PDFs and writes structured data to `agents/_data/`.
-
-### 4. Run Development Servers
-
-```bash
 edgeone makers dev
 ```
 
-## RAG Data Pipeline
-
-```
-public/prepare-rag/files/*.pdf
-        │
-        ▼  (prepare_rag_data.py)
-agents/_data/
-├── index.json                    ← Document manifest
-└── {docId}/
-    ├── meta.json                 ← Document metadata
-    ├── structure.json (optional) ← PageIndex tree
-    └── pages/
-        ├── 1.txt
-        ├── 2.txt
-        └── ...
-```
-
-The sample knowledge base includes:
-- **EdgeOne-Pages-Platform-Guide.pdf** — Platform architecture, context.store, SSE streaming, deployment
-- **Building-RAG-Applications.pdf** — RAG patterns, retrieval strategies, citations, evaluation
-
-## API Endpoints
-
-| Endpoint | Method | Side | Description |
-|----------|--------|------|-------------|
-| `/chat` | POST | `agents/` | Streaming RAG chat with document search tools |
-| `/stop` | POST | `agents/` | Abort active agent run |
-| `/rag-stats` | GET | `agents/` | Knowledge base statistics |
-| `/history` | POST | `cloud-functions/` | Retrieve conversation history |
-
-## SSE Stream Protocol
-
-The backend emits events in the format `data: {JSON}\n\n`:
-
-| Event Type | Description |
-|------------|-------------|
-| `start` | Stream session started |
-| `text-start` | Beginning of text generation |
-| `text-delta` | Incremental text token |
-| `text-end` | Text generation complete |
-| `tool-input-available` | Tool call initiated (shows in UI) |
-| `tool-output-available` | Tool result returned |
-| `finish` | Stream complete |
-| `error` | Error occurred |
+Local agent metrics & traces are exposed at `http://localhost:8080/agent-metrics`.
 
 ## Project Structure
 
-```
+```text
 rag-agent/
-├── src/                          # Frontend (React + Vite)
-│   ├── App.tsx                   # Root component
-│   ├── api.ts                    # SSE stream client
-│   └── components/
-│       ├── RagChat.tsx           # Chat UI with streaming
-│       ├── CitationCard.tsx      # Source citation display
-│       └── KnowledgeBaseSummary.tsx
-├── agents/                       # Stateful EdgeOne Makers Agent Functions
-│   ├── _agent.py                 # Agent definition
-│   ├── _tools.py                 # RAG tools (search_document, fetch_pages)
-│   ├── _loader.py                # Document data reader
-│   ├── _model.py                 # LLM configuration
-│   ├── _data/                    # Generated knowledge base
-│   ├── chat/
-│   │   ├── index.py              # POST /chat (SSE streaming)
-│   │   └── _stream.py            # Streaming utilities
-│   ├── stop/index.py             # POST /stop — abort active agent run
-│   └── rag-stats/index.py        # GET /rag-stats — knowledge base stats
-├── cloud-functions/              # Stateless EdgeOne Pages Python cloud functions
-│   ├── history/index.py          # POST /history — load conversation messages
-│   └── _logger.py                # Logger utility
-├── public/prepare-rag/           # RAG data preparation
-│   ├── prepare_rag_data.py       # PDF → structured text
+├── agents/                          # Stateful EdgeOne Makers Agent Functions (Python)
+│   ├── chat/index.py               # POST /chat — streaming RAG chat
+│   ├── chat/_stream.py             # SSE streaming utilities (private)
+│   ├── stop/index.py               # POST /stop — abort active agent run
+│   ├── rag-stats/index.py          # GET  /rag-stats — knowledge base stats
+│   ├── _agent.py                   # RAG Agent definition (private)
+│   ├── _tools.py                   # search_document, fetch_pages tools (private)
+│   ├── _loader.py                  # Filesystem knowledge base reader (private)
+│   ├── _model.py                   # LLM configuration (private)
+│   ├── _data/                      # Generated knowledge base (gitignored)
+│   └── requirements.txt            # Python agent dependencies
+├── cloud-functions/                 # Stateless EdgeOne Pages Python cloud functions
+│   ├── history/index.py            # POST /history — load conversation messages
+│   └── _logger.py                  # Logger utility
+├── public/prepare-rag/              # PDF → structured text pipeline
+│   ├── prepare_rag_data.py
 │   ├── requirements.txt
-│   └── files/                    # Source PDF documents
+│   └── files/                      # Drop your source PDFs here
+├── src/                             # React + Vite frontend
+│   ├── App.tsx                     # Root component
+│   ├── api.ts                      # SSE stream client
+│   └── components/
+│       ├── RagChat.tsx             # Chat UI with streaming + tool visibility
+│       ├── CitationCard.tsx        # Source citation display
+│       └── KnowledgeBaseSummary.tsx
 ├── package.json
-├── edgeone.json                  # EdgeOne deployment config
+├── edgeone.json                     # framework=openai-sdk, agents.timeout=300, sandbox.timeout=300
 └── vite.config.ts
 ```
 
-## Deployment
+> Files prefixed with `_` are private modules — not exposed as public routes.
 
-Deploy to EdgeOne Makers:
+## How It Works
 
-```bash
-edgeone makers build
-```
+`agents/` runs in **conversation mode**: requests carrying the same `Markers-Conversation-Id` HTTP header are sticky-routed to the same agent instance, sharing the same in-memory state and the same EdgeOne sandbox. That stickiness is what lets `/chat` (the SSE stream) and `/stop` (the abort) reach the same running task. `/stop` deliberately receives the conversation id in the request body — never in the header — so the cancel signal doesn't collide with the live SSE stream.
 
-The `edgeone.json` configures the deployment with `openai-agents` framework and 900s timeout for agent execution.
+End-to-end:
+
+1. **Build the knowledge base (offline)** — `prepare_rag_data.py` reads PDFs from `public/prepare-rag/files/` and writes `agents/_data/{docId}/meta.json` + `pages/{n}.txt` (plus an optional `structure.json` page-tree). `agents/_data/index.json` is the document manifest.
+2. **Request entry** — `POST /chat` (handled by `agents/chat/index.py`) pulls history via `context.store.openai_session(conversation_id)` and starts an OpenAI Agents SDK run for the `_agent.py` agent definition.
+3. **LLM ↔ tools loop** — the agent has access to two tools defined in `_tools.py`:
+   - `search_document(query)` — retrieves candidate pages from the local knowledge base
+   - `fetch_pages(doc_id, pages)` — reads exact page text for citation
+   The agent runs up to 6 turns; `_loader.py` enforces path-traversal-safe filesystem reads under `Path(__file__).parent / "_data"`.
+4. **Streaming** — the handler emits SSE events `start`, `text-start`, `text-delta`, `text-end`, `tool-input-available`, `tool-output-available`, `finish`, `error`. The UI's `useAgentStream` reducer turns those into chat bubbles + citation cards.
+5. **Stats / history / stop** — `GET /rag-stats` (in `agents/`) returns knowledge-base metadata; `POST /history` (in `cloud-functions/`) reads `context.agent.store.get_messages()` to rehydrate after a refresh; `POST /stop` cancels the live run.
+
+Sandbox credentials are injected by the runtime — no local sandbox config is needed. Per `edgeone.json`, both the agent and its sandbox have a 300-second timeout (`agents.timeout`, `agents.sandbox.timeout`).
+
+The bundled sample knowledge base includes:
+
+- **EdgeOne-Pages-Platform-Guide.pdf** — platform architecture, `context.store`, SSE streaming, deployment.
+- **Building-RAG-Applications.pdf** — RAG patterns, retrieval strategies, citations, evaluation.
+
+## Resources
+
+- [EdgeOne Makers Agents — Documentation](https://pages.edgeone.ai/document/agents)
+- [EdgeOne Makers — Quick Start](https://pages.edgeone.ai/document/agents-quickstart)
+- [Makers Models](https://pages.edgeone.ai/document/models)
+
+## License
+
+MIT.
