@@ -153,20 +153,16 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _get_store(self) -> Any:
-        agent = getattr(getattr(self, "context", None), "agent", None)
-        return getattr(agent, "store", None) if agent is not None else None
-
     def do_POST(self):
         start = time.time()
 
         body = _read_body(self.rfile, self.headers)
         conversation_id = str(body.get("conversation_id") or "").strip()
 
-        store = self._get_store()
+        store = self.context.agent.store
         logger.log(f"get_messages: conversation_id={conversation_id!r}")
 
-        if not conversation_id or store is None:
+        if not conversation_id:
             self._write_json(200, {"conversation_id": conversation_id, "messages": []})
             return
 

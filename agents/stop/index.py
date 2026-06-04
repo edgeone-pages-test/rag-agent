@@ -20,20 +20,11 @@ async def handler(context: Any):
         return {"error": "Missing conversation_id"}
 
     # Attempt to abort via context.utils
-    utils = getattr(context, "utils", None)
-    if utils and hasattr(utils, "abort_active_run"):
-        result = utils.abort_active_run(conversation_id)
-        aborted = getattr(result, "aborted", False) if result else False
-        logger.log(f"abortActiveRun result: aborted={aborted}")
-        return {
-            "status": "aborting" if aborted else "idle",
-            "conversationId": conversation_id,
-            "aborted": aborted,
-        }
-
-    logger.warn("context.utils.abort_active_run not available")
+    result = context.utils.abort_active_run(conversation_id)
+    aborted = getattr(result, "aborted", False) if result else False
+    logger.log(f"abortActiveRun result: aborted={aborted}")
     return {
-        "status": "idle",
+        "status": "aborting" if aborted else "idle",
         "conversationId": conversation_id,
-        "aborted": False,
+        "aborted": aborted,
     }

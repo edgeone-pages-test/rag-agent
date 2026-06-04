@@ -17,7 +17,7 @@ def _sse(data: dict) -> str:
 
 def _parse_body(context: Any) -> dict:
     """Extract request body as dict from context."""
-    body = context.request.body if hasattr(context.request, "body") else {}
+    body = context.request.body
     if isinstance(body, str):
         try:
             body = json.loads(body)
@@ -37,16 +37,15 @@ async def stream_chat(
 
     Handles text deltas, tool calls, tool outputs, cancellation, and errors.
     """
-    cancel_signal = getattr(context.request, "signal", None) if hasattr(context, "request") else None
+    cancel_signal = context.request.signal
 
     # Wire up the OpenAI Agents SDK Session backed by EdgeOne `context.store`,
     # so each run reads previous messages and appends new ones automatically.
     session = None
-    conversation_id = getattr(context, "conversation_id", "")
-    store = getattr(context, "store", None)
-    if store and conversation_id and hasattr(store, "openai_session"):
+    conversation_id = context.conversation_id or ""
+    if conversation_id:
         try:
-            session = store.openai_session(conversation_id)
+            session = context.store.openai_session(conversation_id)
         except Exception as e:
             logger.error(f"Failed to create openai_session: {e}")
 
