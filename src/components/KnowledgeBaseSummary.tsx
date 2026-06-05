@@ -2,7 +2,18 @@ import { useState, useEffect, useCallback } from "react";
 import { useT } from "../i18n";
 import "./KnowledgeBaseSummary.css";
 
-export default function KnowledgeBaseSummary() {
+interface Props {
+  /**
+   * Conversation ID. Required by the EdgeOne agents/ runtime: every
+   * agents/* request (including read-only routes like /rag-stats) must
+   * carry `Markers-Conversation-Id`, otherwise the platform rejects
+   * with `{code:"AGENT_CONVERSATION_ID_REQUIRED"}` (HTTP 400) before
+   * the handler runs.
+   */
+  conversationId: string;
+}
+
+export default function KnowledgeBaseSummary({ conversationId }: Props) {
   const { t } = useT();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,13 +23,18 @@ export default function KnowledgeBaseSummary() {
     setLoading(true);
     setError(null);
     try {
-      // EdgeOne agents/ runtime accepts POST only AND requires the request to
-      // look like a normal JSON POST (Content-Type + JSON body). A bare
-      // `fetch(url, { method: 'POST' })` with no body is rejected at the
-      // platform layer with 400 before our handler runs.
+      // EdgeOne agents/ runtime accepts POST only AND requires:
+      //   - Content-Type: application/json
+      //   - non-empty JSON body
+      //   - Markers-Conversation-Id header (since 2026-06-05 platform upgrade)
+      // Missing any of the three returns 400 at the routing layer before
+      // our handler runs.
       const res = await fetch("/rag-stats", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "makers-conversation-id": conversationId,
+        },
         body: "{}",
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -29,7 +45,7 @@ export default function KnowledgeBaseSummary() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [conversationId]);
 
   useEffect(() => {
     fetchStats();
