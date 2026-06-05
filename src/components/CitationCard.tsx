@@ -113,7 +113,7 @@ export default function CitationCard({
                       <button
                         className={`citation-copy-btn ${copiedIdx === idx ? "copied" : ""}`}
                         onClick={() => handleCopy(item.content, idx)}
-                        title="Copy content"
+                        title={t("aria.copyContent")}
                       >
                         {copiedIdx === idx ? (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

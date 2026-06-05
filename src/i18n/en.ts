@@ -40,6 +40,11 @@ const en = {
   "citation.collapse": "Collapse",
   "citation.unknownDoc": "Unknown Document",
 
+  // Aria labels (button hover/screen-reader)
+  "aria.refreshStats": "Refresh stats",
+  "aria.clearConversation": "Clear conversation",
+  "aria.copyContent": "Copy content",
+
   // Language toggle
   "lang.switch": "中文",
 } as const;

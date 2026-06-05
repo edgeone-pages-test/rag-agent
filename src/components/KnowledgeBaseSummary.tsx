@@ -84,7 +84,7 @@ export default function KnowledgeBaseSummary({ conversationId }: Props) {
           className="kb-refresh-btn"
           onClick={fetchStats}
           disabled={loading}
-          title="Refresh stats"
+          title={t("aria.refreshStats")}
         >
           <svg
             className={`kb-refresh-icon ${loading ? "spinning" : ""}`}

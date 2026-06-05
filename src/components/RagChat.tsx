@@ -428,7 +428,7 @@ export default function RagChat() {
           className="chat-clear-circle-btn"
           onClick={handleClear}
           disabled={isStreaming}
-          title="Clear conversation"
+          title={t("aria.clearConversation")}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6" />

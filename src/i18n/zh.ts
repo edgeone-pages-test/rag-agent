@@ -40,6 +40,11 @@ const zh = {
   "citation.collapse": "收起",
   "citation.unknownDoc": "未知文档",
 
+  // Aria labels (button hover/screen-reader)
+  "aria.refreshStats": "刷新统计",
+  "aria.clearConversation": "清空会话",
+  "aria.copyContent": "复制内容",
+
   // Language toggle
   "lang.switch": "English",
 } as const;
