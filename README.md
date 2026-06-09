@@ -1,7 +1,5 @@
 # RAG Agent
 
-**Language:** English | [简体中文](./README_zh-CN.md)
-
 A retrieval-augmented chat agent on EdgeOne Makers — answers questions over a local PDF knowledge base with citation-backed responses, streamed over SSE. Backend uses the OpenAI Agents SDK (Python).
 
 **Framework:** OpenAI Agents SDK · **Category:** File Processing <!-- TODO: confirm --> · **Language:** Python

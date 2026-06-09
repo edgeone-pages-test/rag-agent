@@ -1,7 +1,5 @@
 # RAG Agent
 
-**语言：** [English](./README.md) | 简体中文
-
 跑在 EdgeOne Makers 上的检索增强对话 Agent：基于本地 PDF 知识库回答问题，并附带页级引用，全程 SSE 流式返回。后端使用 OpenAI Agents SDK（Python）。
 
 **Framework：** OpenAI Agents SDK · **Category：** File Processing <!-- TODO: confirm --> · **Language：** Python
