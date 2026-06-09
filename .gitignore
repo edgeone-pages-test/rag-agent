@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Build outputs
+dist/
+build/
+
+# EdgeOne generated/runtime files
+.edgeone/
+.edgeone.zip
+
+.codegraph
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+plan/*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Misc
+.npm
+.eslintcache
+coverage/
+.nyc_output/
+
+# AI assistant local instructions
+CLAUDE.md
+AGENTS.md

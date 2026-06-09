@@ -1,0 +1,3 @@
+# Python dependencies
+# pypdf is the successor to PyPDF2 (more stable, actively maintained)
+pypdf>=4.0.0

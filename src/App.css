@@ -1,0 +1,177 @@
+/* ── App Shell ─────────────────────────── */
+.app-shell {
+  width: 100%;
+  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 20px;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ── Header ────────────────────────────── */
+.app-header {
+  padding: 40px 0 32px;
+  position: relative;
+}
+
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), var(--border-accent), var(--border), transparent);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--accent) 0%, #b8943f 100%);
+  border-radius: 10px;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(212, 168, 83, 0.2);
+}
+
+.brand-mark::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(15, 17, 23, 0.6);
+  border-radius: 4px;
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: rgba(15, 17, 23, 0.5);
+  border-radius: 2px;
+}
+
+.brand-text h1 {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.brand-text p {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
+/* ── Main ──────────────────────────────── */
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px 0 40px;
+  flex: 1;
+}
+
+/* ── Language toggle ───────────────────── */
+.lang-toggle {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  line-height: 1;
+}
+.lang-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(245, 200, 66, 0.06);
+}
+.lang-toggle:active {
+  transform: scale(0.96);
+}
+.lang-toggle__label {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 400;
+  color: #44445a;
+  transition: font-size 0.35s cubic-bezier(.4, 0, .2, 1),
+              color 0.35s cubic-bezier(.4, 0, .2, 1),
+              font-weight 0.35s cubic-bezier(.4, 0, .2, 1),
+              transform 0.35s cubic-bezier(.4, 0, .2, 1),
+              text-shadow 0.35s ease;
+  transform: scale(0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.lang-toggle__label--active {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f5c842;
+  transform: scale(1);
+  text-shadow: 0 0 12px rgba(245, 200, 66, 0.38);
+}
+.lang-toggle__sep {
+  font-size: 11px;
+  color: #44445a;
+  opacity: 0.4;
+  margin: 0 3px;
+  user-select: none;
+}
+
+/* ── Mobile ────────────────────────────── */
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 0 16px;
+  }
+
+  .app-header {
+    padding: 28px 0 24px;
+  }
+
+  .brand-text h1 {
+    font-size: 1.4rem;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-mark::before {
+    width: 16px;
+    height: 16px;
+  }
+
+  .brand-mark::after {
+    width: 6px;
+    height: 6px;
+  }
+}
