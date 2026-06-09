@@ -1,27 +1,11 @@
 """Agent definition: RAG Assistant."""
 
-from agents import Agent, set_tracing_disabled
+from agents import Agent
 
 from ._loader import get_document_meta, list_documents
 from ._logger import create_logger
 from ._model import llm_model
 from ._tools import RAG_TOOLS
-
-# Disable the SDK's built-in tracing exporter at module load.
-#
-# By default, openai-agents posts every Runner.run's span tree to
-# https://api.openai.com/v1/traces/ingest via BackendSpanExporter, with a
-# 5-second connect timeout and 3 retries (see lib/agents/tracing/processors.py).
-# When this template is deployed on EdgeOne where api.openai.com is not
-# reachable from the runtime container, that exporter blocks each chat
-# request behind ~22+ seconds of connect timeouts.
-#
-# The template doesn't use OpenAI's hosted tracing dashboard — observability
-# already runs through the EdgeOne platform's own tracer (ctx.tracer). So
-# turning the exporter off is pure latency win, no information loss. Users
-# who DO want OpenAI tracing can delete this call (or set
-# OPENAI_AGENTS_DISABLE_TRACING=false in their env).
-set_tracing_disabled(True)
 
 logger = create_logger("agent")
 
