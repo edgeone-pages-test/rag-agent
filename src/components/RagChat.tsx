@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { sendMessageStream, fetchConversationHistory, stopAgent } from "../api";
 import CitationCard from "./CitationCard";
 import { useT } from "../i18n";
@@ -341,7 +342,7 @@ export default function RagChat() {
             </div>
             <div className="message-content">
               {msg.role === "assistant" ? (
-                <Markdown>{getTextContent(msg.parts)}</Markdown>
+                <Markdown remarkPlugins={[remarkGfm]}>{getTextContent(msg.parts)}</Markdown>
               ) : (
                 getTextContent(msg.parts)
               )}
