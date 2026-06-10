@@ -23,27 +23,25 @@ logger = create_logger("tools")
 @function_tool
 def search_document(
     query: Annotated[str, "User's search query"],
-    doc_id: Annotated[str, "Document ID. Pass empty string to list all available documents and let the model pick the most relevant one(s)."] = "",
+    doc_id: Annotated[str, "Document ID. Pass empty string only as a fallback to re-list documents — the system prompt already includes the catalog."] = "",
 ) -> str:
-    """Search knowledge base documents. Returns document metadata and structure index for locating relevant pages.
-    Always call this first when answering knowledge-base questions.
+    """Inspect a single document's metadata + structure to plan a fetch_pages call.
 
-    Calling pattern:
-      1. First call with doc_id="" to discover what documents exist in the knowledge base.
-      2. Pick the document(s) whose names / descriptions best match the user's question.
-      3. Call search_document again with the chosen doc_id to retrieve metadata + structure.
-      4. Then call fetch_pages with the appropriate page range.
+    The system prompt already lists every available document, so the normal
+    flow is: pick a doc_id from that catalog → optionally call this tool to
+    inspect the structure → call fetch_pages. Calling this with an empty
+    doc_id is allowed as a recovery path (e.g. the catalog looks stale), but
+    it is not required for the common path and adds a wasted LLM round-trip.
     """
 
     logger.log(f"searchDocument called: query=\"{query}\", doc_id=\"{doc_id}\"")
 
-    # No doc_id → list all available documents and let the LLM choose the relevant one(s).
-    # IMPORTANT: do NOT auto-pick the first document — the knowledge base may contain
-    # multiple unrelated documents and silently picking docs[0] hides the rest from
-    # the model, causing wrong "not found" answers.
+    # Fallback path: re-emit the document list. The system prompt already
+    # contains it, but we still support this for resiliency in case the model
+    # decides to verify the catalog or the prompt was truncated.
     if not doc_id:
         docs = list_documents()
-        logger.log(f"listDocuments returned {len(docs)} docs")
+        logger.log(f"listDocuments returned {len(docs)} docs (fallback path)")
         if not docs:
             return json.dumps({
                 "error": "Knowledge base is empty. Please run prepare_rag_data.py first.",
@@ -62,12 +60,10 @@ def search_document(
                 for d in docs
             ],
             "instruction": (
-                "Multiple documents are available in the knowledge base. "
-                "Review the document list above (especially `meta.doc_name` and `meta.doc_description`), "
-                "select the document(s) most relevant to the user's question, "
-                "then call search_document again with the chosen `doc_id` to retrieve its structure, "
-                "or call fetch_pages directly if the document is small. "
-                "If multiple documents look relevant, query them one by one."
+                "Pick a doc_id from the list above and call fetch_pages directly. "
+                "For small documents (≤20 pages), pages=\"1-N\" is fine; "
+                "for larger documents, optionally call search_document with a specific doc_id "
+                "to inspect its structure first."
             ),
         }, ensure_ascii=False)
 

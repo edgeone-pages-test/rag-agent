@@ -2,6 +2,7 @@
 
 import json
 import traceback
+import uuid
 from typing import Any, AsyncGenerator
 
 from agents import Runner
@@ -52,7 +53,17 @@ async def stream_chat(
     try:
         result = Runner.run_streamed(agent, input=message, max_turns=max_turns, session=session)
 
-        yield _sse({"type": "start", "messageId": f"msg_{id(result)}"})
+        # Collision-safe IDs. Previously these were `id(result)` / `id(event)`,
+        # which are CPython memory addresses and may be reused after GC — two
+        # streams in the same process can end up with the same messageId.
+        message_id = f"msg_{uuid.uuid4().hex[:12]}"
+        yield _sse({"type": "start", "messageId": message_id})
+
+        # Surface a "retrieving" stage right away so the UI has something to
+        # render while the first LLM round is still in flight. The frontend
+        # may ignore unknown event types — this is purely a perceived-latency
+        # nudge, the real timing is unchanged.
+        yield _sse({"type": "status", "stage": "retrieving"})
 
         current_text_id = None
 
@@ -67,7 +78,7 @@ async def stream_chat(
                 delta = event.data.delta
                 if delta:
                     if not current_text_id:
-                        current_text_id = f"txt_{id(event)}"
+                        current_text_id = f"txt_{uuid.uuid4().hex[:12]}"
                         yield _sse({"type": "text-start", "id": current_text_id})
                     yield _sse({"type": "text-delta", "id": current_text_id, "delta": delta})
 
