@@ -57,29 +57,20 @@ export async function fetchConversationHistory(
 ): Promise<HistoryMessage[]> {
   if (!conversationId) return [];
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch(API.history, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversation_id: conversationId }),
-      });
+  try {
+    const res = await fetch(API.history, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversation_id: conversationId }),
+    });
 
-      // 409 = active request on same conversation (React StrictMode double-render), retry shortly
-      if (res.status === 409) {
-        await new Promise((r) => setTimeout(r, 500));
-        continue;
-      }
+    if (!res.ok) return [];
 
-      if (!res.ok) return [];
-
-      const data = await res.json().catch(() => null);
-      return Array.isArray(data?.messages) ? data.messages : [];
-    } catch {
-      return [];
-    }
+    const data = await res.json().catch(() => null);
+    return Array.isArray(data?.messages) ? data.messages : [];
+  } catch {
+    return [];
   }
-  return [];
 }
 
 /**
