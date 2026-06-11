@@ -1,5 +1,5 @@
 """
-History handler — EdgeOne Pages Python cloud function.
+History handler — EdgeOne Makers Python cloud function.
 
 POST /history
   Body:    { "conversation_id": "<uuid>" }

@@ -70,7 +70,7 @@ rag-agent/
 │   ├── _model.py                   # LLM configuration (private)
 │   ├── _data/                      # Generated knowledge base (gitignored)
 │   └── requirements.txt            # Python agent dependencies
-├── cloud-functions/                 # Stateless EdgeOne Pages Python cloud functions
+├── cloud-functions/                 # Stateless EdgeOne Makers Python cloud functions
 │   ├── history/index.py            # POST /history — load conversation messages
 │   └── _logger.py                  # Logger utility
 ├── public/prepare-rag/              # PDF → structured text pipeline

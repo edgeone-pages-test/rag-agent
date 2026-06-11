@@ -70,7 +70,7 @@ rag-agent/
 │   ├── _model.py                   # LLM 配置（私有）
 │   ├── _data/                      # 生成的知识库（gitignore）
 │   └── requirements.txt            # Python agent 依赖
-├── cloud-functions/                 # 无状态的 EdgeOne Pages Python cloud functions
+├── cloud-functions/                 # 无状态的 EdgeOne Makers Python cloud functions
 │   ├── history/index.py            # POST /history —— 拉取对话消息
 │   └── _logger.py                  # 日志工具
 ├── public/prepare-rag/              # PDF → 结构化文本流水线
