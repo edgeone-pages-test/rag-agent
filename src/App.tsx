@@ -3,6 +3,7 @@ import { I18nProvider, LangToggle, useT } from "./i18n";
 import RagChat from "./components/RagChat";
 import KnowledgeBaseSummary from "./components/KnowledgeBaseSummary";
 import GitHubLink from "./components/GitHubLink";
+import DeployLink from "./components/DeployLink";
 import "./App.css";
 
 const CONVERSATION_ID_KEY = "rag_conversation_id";
@@ -28,6 +29,7 @@ export default function App() {
       <LangToggle />
       <AppInner />
       <GitHubLink />
+      <DeployLink />
     </I18nProvider>
   );
 }
