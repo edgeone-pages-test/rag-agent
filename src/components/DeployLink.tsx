@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useT } from "../i18n";
 
 const TEMPLATE = "rag-agent";
 const AGENT_LANG = "python";
@@ -20,21 +21,21 @@ function getDeployUrl(): string {
 }
 
 /**
- * Floating rocket badge for one-click deploy. Pinned next to the
- * GitHub badge in the bottom-right viewport corner. Inline styles only,
- * so the component drops into any layout without depending on a
- * particular styling system.
+ * Floating rocket badge for one-click deploy. Pinned to the left of
+ * the GitHub badge in the bottom-right viewport corner. A localised
+ * tooltip floats above the badge on hover/focus.
  */
 export default function DeployLink() {
   const [hover, setHover] = useState(false);
+  const { t } = useT();
+  const label = t("floatingLink.deploy");
 
   return (
     <a
       href={getDeployUrl()}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Deploy to EdgeOne Makers"
-      title="Deploy to EdgeOne Makers"
+      aria-label={label}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onFocus={() => setHover(true)}
@@ -53,11 +54,31 @@ export default function DeployLink() {
         color: hover ? "#1f2937" : "#9ca3af",
         background: hover ? "rgba(255,255,255,0.85)" : "transparent",
         boxShadow: hover ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
-        transition:
-          "color 160ms ease, background 160ms ease, box-shadow 160ms ease",
+        transition: "color 160ms ease, background 160ms ease, box-shadow 160ms ease",
         textDecoration: "none",
       }}
     >
+      <span
+        role="tooltip"
+        style={{
+          position: "absolute",
+          bottom: "calc(100% + 6px)",
+          left: "50%",
+          transform: "translateX(-50%)",
+          padding: "4px 8px",
+          borderRadius: 4,
+          background: "rgba(31,41,55,0.92)",
+          color: "#f9fafb",
+          fontSize: 12,
+          lineHeight: 1.4,
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+          opacity: hover ? 1 : 0,
+          transition: "opacity 140ms ease",
+        }}
+      >
+        {label}
+      </span>
       <svg
         viewBox="0 0 24 24"
         width={22}

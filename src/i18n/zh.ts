@@ -47,6 +47,10 @@ const zh = {
 
   // Language toggle
   "lang.switch": "English",
+
+  // ─── Floating bottom-right action badges ─────────────────────────────
+  "floatingLink.deploy": "一键部署",
+  "floatingLink.github": "GitHub",
 } as const;
 
 export default zh;

@@ -47,6 +47,10 @@ const en = {
 
   // Language toggle
   "lang.switch": "中文",
+
+  // ─── Floating bottom-right action badges ─────────────────────────────
+  "floatingLink.deploy": "Deploy",
+  "floatingLink.github": "GitHub",
 } as const;
 
 export default en;
